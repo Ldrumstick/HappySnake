@@ -10,9 +10,14 @@ public class Snake : MonoBehaviour {
     public GameObject gameOver;
     List<Transform> body = new List<Transform>();
     private bool flag = false;
+    private bool isOne = false;  //用于避免一次生成两个
+    private CreatFood cFood;
     
 
 	void Start () {
+        //InvokeRepeating("Eatting", 0.5f, 0.1f);
+        cFood = GetComponent<CreatFood>();
+        cFood.Create();
 	}
 	
 
@@ -51,20 +56,30 @@ public class Snake : MonoBehaviour {
         }
         else if (body.Count > 0)
         {
-            body.Last().position = oldPos;
-            body.Insert(0, body.Last());
-            body.RemoveAt(body.Count - 1);
+            if ((body.First().position - oldPos).magnitude > 1)
+            {
+                body.Last().position = oldPos;
+                body.Insert(0, body.Last());
+                body.RemoveAt(body.Count - 1);
+            }
+                
+            
+            
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    
+
+    private void OnTriggerExit(Collider other)
     {
         if (other.gameObject.tag == "Food")
         {
-            Destroy(other.gameObject);
-            flag = true;
+                Destroy(other.gameObject);
+                cFood.Create();
+                flag = true;
+            
         }
-        else
+        else if(other.gameObject.tag != "Floor")
         {
             gameOver.SetActive(true);
         }
